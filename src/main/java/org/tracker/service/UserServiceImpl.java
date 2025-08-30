@@ -48,6 +48,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(Long id) {
+        taskRepository.findAll().stream().filter(task -> task.getAssignee() != null &&  task.getAssignee().getId().equals(id))
+                .forEach(task -> task.setAssignee(null));
+
         userRepository.deleteById(id);
     }
 }

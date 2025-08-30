@@ -10,17 +10,17 @@ public class Task {
     private Long id;
     private String title;
     private String description;
-    private Status status;
     private Priority priority;
-    private User assignee;
     private LocalDateTime dueDate;
+    private Status status;
+    private User assignee;
 
-    public Task(String description, LocalDateTime dueDate, Priority priority, Status status, String title) {
-        this.description = description;
-        this.dueDate = dueDate;
-        this.priority = priority;
-        this.status = status;
+    public Task(String title, String description, Priority priority, LocalDateTime dueDate, Status status) {
         this.title = title;
+        this.description = description;
+        this.priority = priority;
+        this.dueDate = dueDate;
+        this.status = status;
     }
 
     public User getAssignee() {
@@ -77,5 +77,18 @@ public class Task {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                ", assigneeId=" + (assignee == null ? null : assignee.getId()) +
+                ", id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", priority=" + priority +
+                ", dueDate=" + dueDate +
+                ", status=" + status +
+                '}';
     }
 }
