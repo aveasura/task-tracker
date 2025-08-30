@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class InMemoryUserRepositoryImpl implements UserRepository {
 
-    private long idCounter = 0L; // in memory user id counter
+    private long idCounter = 1L; // in memory user id counter
     private Map<Long, User> userMap = new HashMap<>(); // in mem users db
 
     @Override

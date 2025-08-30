@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class InMemoryTaskRepositoryImpl implements TaskRepository {
 
-    private long idCounter = 0L;
+    private long idCounter = 1L;
     private Map<Long, Task> taskMap = new HashMap<>();
 
     @Override

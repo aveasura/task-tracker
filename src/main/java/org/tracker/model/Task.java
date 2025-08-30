@@ -15,8 +15,7 @@ public class Task {
     private User assignee;
     private LocalDateTime dueDate;
 
-    public Task(User assignee, String description, LocalDateTime dueDate, Priority priority, Status status, String title) {
-        this.assignee = assignee;
+    public Task(String description, LocalDateTime dueDate, Priority priority, Status status, String title) {
         this.description = description;
         this.dueDate = dueDate;
         this.priority = priority;
