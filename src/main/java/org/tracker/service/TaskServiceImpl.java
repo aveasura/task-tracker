@@ -32,10 +32,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         task.setAssignee(user);
-        user.getTasks().add(task);
-
         taskRepository.update(task);
-        userRepository.update(user);
     }
 
     @Override

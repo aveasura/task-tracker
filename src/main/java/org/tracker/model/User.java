@@ -1,14 +1,10 @@
 package org.tracker.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class User {
 
     private Long id;
     private String name;
     private String email;
-    private List<Task> tasks = new ArrayList<>();
 
     public User(String name, String email) {
         this.name = name;
@@ -39,21 +35,12 @@ public class User {
         this.name = name;
     }
 
-    public List<Task> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
-    }
-
     @Override
     public String toString() {
         return "User{" +
                 "email='" + email + '\'' +
                 ", id=" + id +
                 ", name='" + name + '\'' +
-                ", taskCount=" + tasks.size() +
                 '}';
     }
 }
