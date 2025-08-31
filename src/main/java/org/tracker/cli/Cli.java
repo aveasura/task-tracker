@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Cli {
@@ -49,31 +50,58 @@ public class Cli {
 
     private void showTasksForUser() {
         printMessage("Выберите id пользователя у которого надо посмотреть список его задач");
-        int userId = validateNumber(scanner);
-        List<Task> tasks = userService.getTasksForUser((long) userId);
-        tasks.forEach(System.out::println);
+        int userId = validateNumber();
+        try {
+            List<Task> tasks = userService.getTasksForUser((long) userId);
+
+            if (tasks == null || tasks.isEmpty()) {
+                printMessage("Задач у пользователя с id=" + userId + " пока нет");
+            } else {
+                printMessage("Список задач пользователя с id=" + userId);
+                tasks.forEach(System.out::println);
+            }
+        } catch (NoSuchElementException e) {
+            printMessage("Ошибка: " + e.getMessage());
+        }
     }
 
     private void deleteUser() {
         printMessage("введите id пользователя для удаления");
-        int userId = validateNumber(scanner);
-        userService.deleteById((long) userId);
+        int userId = validateNumber();
+
+        try {
+            userService.deleteById((long) userId);
+            printMessage("Пользователь успешно удален");
+        } catch (NoSuchElementException e) {
+            printMessage("Ошибка: " + e.getMessage());
+        }
     }
 
     private void deleteTask() {
         printMessage("введите id задачи для удаления");
-        int taskId = validateNumber(scanner);
-        taskService.deleteById((long) taskId);
+        int taskId = validateNumber();
+
+        try {
+            taskService.deleteById((long) taskId);
+            printMessage("Задача успешно удалена");
+        } catch (NoSuchElementException e) {
+            printMessage("Ошибка: " + e.getMessage());
+        }
     }
 
     private void assignTask() {
         printMessage("Выберите id задачи");
-        int taskId = validateNumber(scanner);
+        int taskId = validateNumber();
 
         printMessage("Выберите id пользователя которому нужно назначить эту задачу");
-        int userId = validateNumber(scanner);
+        int userId = validateNumber();
 
-        taskService.assignTaskToUser((long) taskId, (long) userId);
+        try {
+            taskService.assignTaskToUser((long) taskId, (long) userId);
+            printMessage("Задача назначена успешно");
+        } catch (NoSuchElementException e) {
+            printMessage("Ошибка: " + e.getMessage());
+        }
     }
 
     private int chooseMenu() {
@@ -91,20 +119,20 @@ public class Cli {
                  9. Показать какие задачи назначены на конкретного пользователя
                 """);
 
-        return validateNumber(scanner);
+        return validateNumber();
     }
 
     private void updateTaskStatus() {
         printMessage("Укажите id задачи статус которой требуется изменить");
-        Long id = (long) validateNumber(scanner);
+        Long id = (long) validateNumber();
         printMessage("""
                 Установите новый status:
                 1. NEW
                 2. IN_PROGRESS
                 3. Done""");
-        Status status = null;
+        Status status;
         while (true) {
-            int choose = validateNumber(scanner);
+            int choose = validateNumber();
             switch (choose) {
                 case 1 -> status = Status.NEW;
                 case 2 -> status = Status.IN_PROGRESS;
@@ -116,18 +144,34 @@ public class Cli {
             }
             break;
         }
-        taskService.changeStatus(id, status);
+
+        try {
+            taskService.changeStatus(id, status);
+            printMessage("Статус задачи успешно обновлен");
+        } catch (NoSuchElementException e) {
+            printMessage("Ошибка: " + e.getMessage());
+        }
 
     }
 
     private void showAllTasks() {
         List<Task> tasks = taskService.findAll();
-        tasks.forEach(System.out::println);
+        if (tasks.isEmpty()) {
+            printMessage("Задач пока нет");
+        } else {
+            printMessage("Список задач:");
+            tasks.forEach(System.out::println);
+        }
     }
 
     private void showAllUsers() {
         List<User> users = userService.findAll();
-        users.forEach(System.out::println);
+        if (users.isEmpty()) {
+            printMessage("Пользователей пока нет");
+        } else {
+            printMessage("Список пользователей:");
+            users.forEach(System.out::println);
+        }
     }
 
     private void createTask() {
@@ -142,9 +186,9 @@ public class Cli {
                 1. LOW
                 2. MEDIUM
                 3. HIGH""");
-        Priority priority = null;
+        Priority priority;
         while (true) {
-            int priorityChoose = validateNumber(scanner);
+            int priorityChoose = validateNumber();
             switch (priorityChoose) {
                 case 1 -> priority = Priority.LOW;
                 case 2 -> priority = Priority.MEDIUM;
@@ -163,9 +207,9 @@ public class Cli {
                 1. NEW
                 2. IN_PROGRESS
                 3. Done""");
-        Status status = null;
+        Status status;
         while (true) {
-            int statusChoose = validateNumber(scanner);
+            int statusChoose = validateNumber();
             switch (statusChoose) {
                 case 1 -> status = Status.NEW;
                 case 2 -> status = Status.IN_PROGRESS;
@@ -180,9 +224,7 @@ public class Cli {
 
         Task task = new Task(title, description, priority, dueDate, status);
         taskService.save(task);
-
-        System.out.println("После добавления:");
-        showAllTasks();
+        printMessage("Задача успешно добавлена");
     }
 
     private void createUser() {
@@ -195,11 +237,10 @@ public class Cli {
         User user = new User(name, email);
         userService.save(user);
 
-        System.out.println("После добавления:");
-        showAllUsers();
+        printMessage("Пользователь успешно добавлен");
     }
 
-    private int validateNumber(Scanner scanner) {
+    private int validateNumber() {
         while (true) {
             String input = scanner.nextLine();
             try {

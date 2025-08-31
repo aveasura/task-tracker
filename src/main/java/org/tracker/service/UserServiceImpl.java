@@ -6,6 +6,7 @@ import org.tracker.repository.TaskRepository;
 import org.tracker.repository.UserRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class UserServiceImpl implements UserService {
@@ -20,10 +21,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Task> getTasksForUser(Long userId) {
+        User user = userRepository.findById(userId);
+        if (user == null) {
+            throw new NoSuchElementException("Пользователя с таким id не найдено");
+        }
 
-        return taskRepository.findAll().stream()
+        List<Task> userTasks = taskRepository.findAll().stream()
                 .filter(task -> task.getAssignee() != null && task.getAssignee().getId().equals(userId))
-                .collect(Collectors.toList());
+                .toList();
+        return userTasks.isEmpty() ? List.of() : userTasks;
     }
 
     @Override
@@ -38,7 +44,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> findAll() {
-        return userRepository.findAll();
+        List<User> users = userRepository.findAll();
+        return users == null ? List.of() : users;
     }
 
     @Override
@@ -48,8 +55,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(Long id) {
+        User user = userRepository.findById(id);
+        if (user == null) {
+            throw new NoSuchElementException("Пользователя с id=" + id + " не найдено");
+        }
+
         taskRepository.findAll().stream().filter(task -> task.getAssignee() != null &&  task.getAssignee().getId().equals(id))
-                .forEach(task -> task.setAssignee(null));
+                .forEach(task -> {
+                    task.setAssignee(null);
+                    taskRepository.update(task);
+                });
 
         userRepository.deleteById(id);
     }

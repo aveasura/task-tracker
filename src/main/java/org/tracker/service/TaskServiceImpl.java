@@ -9,6 +9,7 @@ import org.tracker.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class TaskServiceImpl implements TaskService {
@@ -27,8 +28,7 @@ public class TaskServiceImpl implements TaskService {
         User user = userRepository.findById(userId);
 
         if (task == null || user == null) {
-            System.out.println("Таска или Юзер не существует / екзепшен кинуть");
-            return;
+            throw new NoSuchElementException("Task или User не найден");
         }
 
         task.setAssignee(user);
@@ -40,8 +40,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId);
 
         if (task == null) {
-            System.out.println("Такой таски не существует / екзепшен");
-            return;
+            throw new NoSuchElementException("Task с таким id не найден");
         }
 
         task.setStatus(newStatus);
@@ -91,7 +90,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<Task> findAll() {
-        return taskRepository.findAll();
+        List<Task> tasks = taskRepository.findAll();
+        return tasks == null ? List.of() : tasks;
     }
 
     @Override
@@ -101,6 +101,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteById(Long id) {
+        Task task = taskRepository.findById(id);
+        if (task == null) {
+         throw new NoSuchElementException("Задачи с id=" + id + " не найдено");
+        }
+
         taskRepository.deleteById(id);
     }
 }
