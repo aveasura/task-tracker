@@ -27,8 +27,12 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskId);
         User user = userRepository.findById(userId);
 
-        if (task == null || user == null) {
-            throw new NoSuchElementException("Task или User не найден");
+        if (task == null) {
+            throw new NoSuchElementException("Task не найден");
+        }
+
+        if (user == null) {
+            throw new NoSuchElementException("User не найден");
         }
 
         task.setAssignee(user);
