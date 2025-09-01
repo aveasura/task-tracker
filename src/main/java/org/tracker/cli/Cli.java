@@ -1,5 +1,6 @@
 package org.tracker.cli;
 
+import org.springframework.stereotype.Component;
 import org.tracker.model.Task;
 import org.tracker.model.User;
 import org.tracker.model.enums.Priority;
@@ -14,16 +15,16 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+@Component
 public class Cli {
 
     private final TaskService taskService;
     private final UserService userService;
-    final Scanner scanner;
+    final Scanner scanner = new Scanner(System.in);
 
-    public Cli(TaskService taskService, UserService userService, Scanner scanner) {
+    public Cli(TaskService taskService, UserService userService) {
         this.taskService = taskService;
         this.userService = userService;
-        this.scanner = scanner;
     }
 
     public void start() {

@@ -1,5 +1,6 @@
 package org.tracker.service;
 
+import org.springframework.stereotype.Service;
 import org.tracker.model.Task;
 import org.tracker.model.User;
 import org.tracker.repository.TaskRepository;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
