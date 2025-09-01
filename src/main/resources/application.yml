@@ -6,7 +6,7 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: update  # пока для обучения можно update (потом перейдём на миграции)
+      ddl-auto: create-drop  # пока для обучения можно update (потом перейдём на миграции)
     show-sql: true      # чтобы видеть SQL в консоли
     properties:
       hibernate:

@@ -1,19 +1,36 @@
 package org.tracker.model;
 
+import jakarta.persistence.*;
 import org.tracker.model.enums.Priority;
 import org.tracker.model.enums.Status;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "tasks")
 public class Task {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
+
     private String description;
+
+    @Enumerated(EnumType.STRING)
     private Priority priority;
+
     private LocalDateTime dueDate;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assignee_id")
     private User assignee;
+
+    public Task() {}
 
     public Task(String title, String description, Priority priority, LocalDateTime dueDate, Status status) {
         this.title = title;

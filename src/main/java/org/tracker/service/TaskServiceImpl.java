@@ -1,6 +1,7 @@
 package org.tracker.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tracker.model.Task;
 import org.tracker.model.User;
 import org.tracker.model.enums.Priority;
@@ -11,7 +12,7 @@ import org.tracker.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -25,63 +26,38 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void assignTaskToUser(Long taskId, Long userId) {
-        Task task = taskRepository.findById(taskId);
-        User user = userRepository.findById(userId);
-
-        if (task == null) {
-            throw new NoSuchElementException("Task не найден");
-        }
-
-        if (user == null) {
-            throw new NoSuchElementException("User не найден");
-        }
-
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new NoSuchElementException("Task не найден"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("User не найден"));
         task.setAssignee(user);
-        taskRepository.update(task);
     }
 
     @Override
+    @Transactional
     public void changeStatus(Long taskId, Status newStatus) {
-        Task task = taskRepository.findById(taskId);
-
-        if (task == null) {
-            throw new NoSuchElementException("Task с таким id не найден");
-        }
-
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new NoSuchElementException("Task с таким id не найден"));
         task.setStatus(newStatus);
-        taskRepository.update(task);
     }
 
     @Override
     public List<Task> getOverdueTasks() {
-        List<Task> allTasks = taskRepository.findAll();
-        LocalDateTime now = LocalDateTime.now();
-
-        return allTasks.stream()
-                .filter(task -> task.getDueDate() != null && task.getDueDate().isBefore(now))
-                .collect(Collectors.toList());
+        return taskRepository.findByDueDateBefore(LocalDateTime.now());
     }
 
     @Override
     public List<Task> getUnassignedTasks() {
-        return taskRepository.findAll().stream()
-                .filter(task -> task.getAssignee() == null)
-                .collect(Collectors.toList());
+        return taskRepository.findByAssigneeIsNull();
     }
 
     @Override
     public List<Task> getTasksByPriority(Priority priority) {
-        return taskRepository.findAll().stream()
-                .filter(task -> task.getPriority() != null && task.getPriority().equals(priority))
-                .collect(Collectors.toList());
+        return taskRepository.findByPriority(priority);
     }
 
     @Override
     public List<Task> getTasksByStatus(Status status) {
-        return taskRepository.findAll().stream()
-                .filter(task -> task.getStatus() != null && task.getStatus().equals(status))
-                .collect(Collectors.toList());
+        return taskRepository.findByStatus(status);
     }
 
     @Override
@@ -90,28 +66,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task findById(Long id) {
+    public Optional<Task> findById(Long id) {
         return taskRepository.findById(id);
     }
 
     @Override
     public List<Task> findAll() {
-        List<Task> tasks = taskRepository.findAll();
-        return tasks == null ? List.of() : tasks;
+        return taskRepository.findAll();
     }
 
     @Override
-    public Task update(Task task) {
-        return taskRepository.update(task);
-    }
-
-    @Override
+    @Transactional
     public void deleteById(Long id) {
-        Task task = taskRepository.findById(id);
-        if (task == null) {
-         throw new NoSuchElementException("Задачи с id=" + id + " не найдено");
-        }
-
-        taskRepository.deleteById(id);
+        Task task = taskRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Задачи с id=" + id + " не найдено"));
+        taskRepository.delete(task);
     }
 }

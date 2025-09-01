@@ -1,6 +1,7 @@
 package org.tracker.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.tracker.model.Task;
 import org.tracker.model.User;
 import org.tracker.repository.TaskRepository;
@@ -8,7 +9,7 @@ import org.tracker.repository.UserRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -23,15 +24,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Task> getTasksForUser(Long userId) {
-        User user = userRepository.findById(userId);
-        if (user == null) {
-            throw new NoSuchElementException("Пользователя с таким id не найдено");
-        }
-
-        List<Task> userTasks = taskRepository.findAll().stream()
-                .filter(task -> task.getAssignee() != null && task.getAssignee().getId().equals(userId))
-                .toList();
-        return userTasks.isEmpty() ? List.of() : userTasks;
+        userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("Пользователя с таким id не найдено"));
+        return taskRepository.findByAssigneeId(userId);
     }
 
     @Override
@@ -40,34 +34,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(Long id) {
+    public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
 
     @Override
     public List<User> findAll() {
-        List<User> users = userRepository.findAll();
-        return users == null ? List.of() : users;
+        return userRepository.findAll();
     }
 
     @Override
-    public User update(User user) {
-        return userRepository.update(user);
-    }
-
-    @Override
+    @Transactional
     public void deleteById(Long id) {
-        User user = userRepository.findById(id);
-        if (user == null) {
-            throw new NoSuchElementException("Пользователя с id=" + id + " не найдено");
-        }
+        User user = userRepository.findById(id)
+                        .orElseThrow(() -> new NoSuchElementException("Пользователь с id=" + id + " не найден"));
 
-        taskRepository.findAll().stream().filter(task -> task.getAssignee() != null &&  task.getAssignee().getId().equals(id))
-                .forEach(task -> {
-                    task.setAssignee(null);
-                    taskRepository.update(task);
-                });
+        taskRepository.findByAssigneeId(id)
+                .forEach(task -> task.setAssignee(null));
 
-        userRepository.deleteById(id);
+        userRepository.delete(user);
     }
 }
