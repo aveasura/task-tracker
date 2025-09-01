@@ -14,8 +14,9 @@ import org.tracker.service.UserService;
 import org.tracker.service.UserServiceImpl;
 
 import java.time.LocalDateTime;
-import java.util.Scanner;
 
+// Данный класс теперь не актуален, т.к запускать будем приложуху через TrackerApplication.class,
+// спринг сам создает зависимости которые я создавал ранее вручную тут:
 public class Main {
     public static void main(String[] args) {
 
@@ -25,9 +26,7 @@ public class Main {
         TaskService taskService = new TaskServiceImpl(taskRepository, userRepository);
         UserService userService = new UserServiceImpl(userRepository, taskRepository);
 
-        Scanner scanner = new Scanner(System.in);
-
-        Cli cli = new Cli(taskService, userService, scanner);
+        Cli cli = new Cli(taskService, userService);
         new Main().fastCreate(userService, taskService);
 
         cli.start();

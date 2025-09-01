@@ -1,5 +1,6 @@
 package org.tracker.repository;
 
+import org.springframework.stereotype.Repository;
 import org.tracker.model.User;
 
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Repository
 public class InMemoryUserRepositoryImpl implements UserRepository {
 
     private long idCounter = 1L; // in memory user id counter
