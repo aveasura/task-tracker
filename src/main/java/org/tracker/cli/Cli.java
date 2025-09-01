@@ -18,12 +18,12 @@ public class Cli {
 
     private final TaskService taskService;
     private final UserService userService;
-    private final Scanner scanner;
+    final Scanner scanner;
 
-    public Cli(TaskService taskService, UserService userService) {
+    public Cli(TaskService taskService, UserService userService, Scanner scanner) {
         this.taskService = taskService;
         this.userService = userService;
-        this.scanner = new Scanner(System.in);
+        this.scanner = scanner;
     }
 
     public void start() {
@@ -48,7 +48,7 @@ public class Cli {
         }
     }
 
-    private void showTasksForUser() {
+    public void showTasksForUser() {
         printMessage("Выберите id пользователя у которого надо посмотреть список его задач");
         int userId = validateNumber();
         try {
@@ -65,7 +65,7 @@ public class Cli {
         }
     }
 
-    private void deleteUser() {
+    public void deleteUser() {
         printMessage("введите id пользователя для удаления");
         int userId = validateNumber();
 
@@ -77,7 +77,7 @@ public class Cli {
         }
     }
 
-    private void deleteTask() {
+    public void deleteTask() {
         printMessage("введите id задачи для удаления");
         int taskId = validateNumber();
 
@@ -89,7 +89,7 @@ public class Cli {
         }
     }
 
-    private void assignTask() {
+    public void assignTask() {
         printMessage("Выберите id задачи");
         int taskId = validateNumber();
 
@@ -122,7 +122,7 @@ public class Cli {
         return validateNumber();
     }
 
-    private void updateTaskStatus() {
+    public void updateTaskStatus() {
         printMessage("Укажите id задачи статус которой требуется изменить");
         Long id = (long) validateNumber();
         printMessage("""
@@ -154,7 +154,7 @@ public class Cli {
 
     }
 
-    private void showAllTasks() {
+    public void showAllTasks() {
         List<Task> tasks = taskService.findAll();
         if (tasks.isEmpty()) {
             printMessage("Задач пока нет");
@@ -164,7 +164,7 @@ public class Cli {
         }
     }
 
-    private void showAllUsers() {
+    public void showAllUsers() {
         List<User> users = userService.findAll();
         if (users.isEmpty()) {
             printMessage("Пользователей пока нет");
@@ -174,7 +174,7 @@ public class Cli {
         }
     }
 
-    private void createTask() {
+    public void createTask() {
         printMessage("Введите title");
         final String title = scanner.nextLine();
 
@@ -227,7 +227,7 @@ public class Cli {
         printMessage("Задача успешно добавлена");
     }
 
-    private void createUser() {
+    public void createUser() {
         printMessage("Введите имя");
         final String name = scanner.nextLine();
 
