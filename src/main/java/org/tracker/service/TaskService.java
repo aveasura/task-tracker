@@ -5,6 +5,7 @@ import org.tracker.model.enums.Priority;
 import org.tracker.model.enums.Status;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskService {
 
@@ -17,8 +18,7 @@ public interface TaskService {
 
     // стандартные методы дергающие repo
     void save(Task task);
-    Task findById(Long id);
+    Optional<Task> findById(Long id);
     List<Task> findAll();
-    Task update(Task task);
     void deleteById(Long id);
 }

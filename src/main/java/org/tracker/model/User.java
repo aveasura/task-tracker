@@ -1,10 +1,20 @@
 package org.tracker.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Авто инкремент
     private Long id;
+
     private String name;
+
     private String email;
+
+    public User(){} // Нужен конструктор без аргументов для JPA
 
     public User(String name, String email) {
         this.name = name;

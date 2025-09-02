@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:trackerdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # пока для обучения можно update (потом перейдём на миграции)
+    show-sql: true      # чтобы видеть SQL в консоли
+    properties:
+      hibernate:
+        format_sql: true
+
+# включаем консоль H2
+spring.h2.console.enabled: true
+spring.h2.console.path: /h2-console
