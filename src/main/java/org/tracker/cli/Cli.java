@@ -33,6 +33,7 @@ public class Cli {
             switch (choose) {
                 case 0 -> {
                     printMessage("Выход...");
+                    System.exit(0);
                     return;
                 }
                 case 1 -> createUser();
