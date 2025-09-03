@@ -2,6 +2,9 @@ package org.tracker.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tracker.dto.task.TaskCreateDto;
+import org.tracker.dto.task.TaskDto;
+import org.tracker.mapper.TaskMapper;
 import org.tracker.model.Task;
 import org.tracker.model.User;
 import org.tracker.model.enums.Priority;
@@ -41,38 +44,41 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getOverdueTasks() {
-        return taskRepository.findByDueDateBefore(LocalDateTime.now());
+    public List<TaskDto> getOverdueTasks() {
+        return taskRepository.findByDueDateBefore(LocalDateTime.now()).stream().map(TaskMapper::toDto).toList();
     }
 
     @Override
-    public List<Task> getUnassignedTasks() {
-        return taskRepository.findByAssigneeIsNull();
+    public List<TaskDto> getUnassignedTasks() {
+        return taskRepository.findByAssigneeIsNull().stream().map(TaskMapper::toDto).toList();
     }
 
     @Override
-    public List<Task> getTasksByPriority(Priority priority) {
-        return taskRepository.findByPriority(priority);
+    public List<TaskDto> getTasksByPriority(Priority priority) {
+        return taskRepository.findByPriority(priority).stream().map(TaskMapper::toDto).toList();
     }
 
     @Override
-    public List<Task> getTasksByStatus(Status status) {
-        return taskRepository.findByStatus(status);
+    public List<TaskDto> getTasksByStatus(Status status) {
+        return taskRepository.findByStatus(status).stream().map(TaskMapper::toDto).toList();
     }
 
     @Override
-    public void save(Task task) {
+    public void createTask(TaskCreateDto dto) {
+        Task task = TaskMapper.toEntity(dto);
         taskRepository.save(task);
     }
 
     @Override
-    public Optional<Task> findById(Long id) {
-        return taskRepository.findById(id);
+    public Optional<TaskDto> findById(Long id) {
+        return taskRepository.findById(id).map(TaskMapper::toDto);
     }
 
     @Override
-    public List<Task> findAll() {
-        return taskRepository.findAll();
+    public List<TaskDto> findAll() {
+        return taskRepository.findAll().stream()
+                .map(TaskMapper::toDto)
+                .toList();
     }
 
     @Override

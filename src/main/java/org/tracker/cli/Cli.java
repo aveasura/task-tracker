@@ -1,8 +1,11 @@
 package org.tracker.cli;
 
 import org.springframework.stereotype.Component;
+import org.tracker.dto.task.TaskCreateDto;
+import org.tracker.dto.task.TaskDto;
+import org.tracker.dto.user.UserCreateDto;
+import org.tracker.dto.user.UserDto;
 import org.tracker.model.Task;
-import org.tracker.model.User;
 import org.tracker.model.enums.Priority;
 import org.tracker.model.enums.Status;
 import org.tracker.service.TaskService;
@@ -13,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Scanner;
 
 @Component
@@ -45,16 +49,24 @@ public class Cli {
                 case 7 -> deleteTask();
                 case 8 -> deleteUser();
                 case 9 -> showTasksForUser();
+                case 10 -> findTaskById();
                 default -> printMessage("Неверный выбор");
             }
         }
+    }
+
+    private void findTaskById() {
+        printMessage("Введите id таски которую нужно найти");
+        int taskId = validateNumber();
+        Optional<TaskDto> dto = taskService.findById((long) taskId);
+        printMessage(dto.toString());
     }
 
     public void showTasksForUser() {
         printMessage("Выберите id пользователя у которого надо посмотреть список его задач");
         int userId = validateNumber();
         try {
-            List<Task> tasks = userService.getTasksForUser((long) userId);
+            List<TaskDto> tasks = userService.getTasksForUser((long) userId);
 
             if (tasks == null || tasks.isEmpty()) {
                 printMessage("Задач у пользователя с id=" + userId + " пока нет");
@@ -119,6 +131,7 @@ public class Cli {
                  7. Удалить задачу
                  8. Удалить пользователя
                  9. Показать какие задачи назначены на конкретного пользователя
+                 10. Найти и отобразить таску по id
                 """);
 
         return validateNumber();
@@ -157,7 +170,7 @@ public class Cli {
     }
 
     public void showAllTasks() {
-        List<Task> tasks = taskService.findAll();
+        List<TaskDto> tasks = taskService.findAll();
         if (tasks.isEmpty()) {
             printMessage("Задач пока нет");
         } else {
@@ -167,7 +180,7 @@ public class Cli {
     }
 
     public void showAllUsers() {
-        List<User> users = userService.findAll();
+        List<UserDto> users = userService.findAll();
         if (users.isEmpty()) {
             printMessage("Пользователей пока нет");
         } else {
@@ -224,8 +237,8 @@ public class Cli {
             break;
         }
 
-        Task task = new Task(title, description, priority, dueDate, status);
-        taskService.save(task);
+        TaskCreateDto task = new TaskCreateDto(title, description, priority.toString(), dueDate, status.toString());
+        taskService.createTask(task);
         printMessage("Задача успешно добавлена");
     }
 
@@ -236,8 +249,8 @@ public class Cli {
         printMessage("Введите email");
         final String email = scanner.nextLine();
 
-        User user = new User(name, email);
-        userService.save(user);
+        UserCreateDto dto = new UserCreateDto(name, email);
+        userService.createUser(dto);
 
         printMessage("Пользователь успешно добавлен");
     }

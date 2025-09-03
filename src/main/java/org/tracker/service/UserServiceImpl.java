@@ -2,7 +2,11 @@ package org.tracker.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.tracker.model.Task;
+import org.tracker.dto.task.TaskDto;
+import org.tracker.dto.user.UserCreateDto;
+import org.tracker.dto.user.UserDto;
+import org.tracker.mapper.TaskMapper;
+import org.tracker.mapper.UserMapper;
 import org.tracker.model.User;
 import org.tracker.repository.TaskRepository;
 import org.tracker.repository.UserRepository;
@@ -23,24 +27,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Task> getTasksForUser(Long userId) {
+    public List<TaskDto> getTasksForUser(Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("Пользователя с таким id не найдено"));
-        return taskRepository.findByAssigneeId(userId);
+        return taskRepository.findByAssigneeId(userId).stream()
+                .map(TaskMapper::toDto)
+                .toList();
     }
 
     @Override
-    public void save(User user) {
+    public void createUser(UserCreateDto dto) {
+        User user = UserMapper.toEntity(dto);
         userRepository.save(user);
     }
 
     @Override
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+    public Optional<UserDto> findById(Long id) {
+        return userRepository.findById(id)
+                .map(UserMapper::toDto);
     }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserDto> findAll() {
+        return userRepository.findAll()
+                .stream()
+                .map(UserMapper::toDto)
+                .toList();
     }
 
     @Override

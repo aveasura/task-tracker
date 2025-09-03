@@ -8,13 +8,13 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update  # пока для обучения можно update (потом перейдём на миграции)
+      ddl-auto: update
     show-sql: true      # чтобы видеть SQL в консоли
     properties:
       hibernate:
         format_sql: true
   profiles:
-    active: postgres # тут можно будет указать профиль postgres == будет юзаться application-{postgres}.yml
+    active: postgres # тут можно указать профиль postgres == будет юзаться application-{postgres}.yml
 
 # включаем консоль H2
 spring.h2.console.enabled: true

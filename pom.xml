@@ -73,5 +73,12 @@
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+        </dependency>
+
     </dependencies>
 </project>
