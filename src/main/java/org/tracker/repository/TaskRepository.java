@@ -10,6 +10,7 @@ import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByAssigneeId(Long userId);
+    List<Task> findByPriorityAndStatus(Priority priority, Status status);
     List<Task> findByStatus(Status status);
     List<Task> findByPriority(Priority priority);
     List<Task> findByAssigneeIsNull();
