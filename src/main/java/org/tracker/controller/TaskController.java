@@ -1,5 +1,6 @@
 package org.tracker.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.tracker.dto.task.TaskCreateDto;
@@ -22,7 +23,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskDto> create(@RequestBody TaskCreateDto dto) {
+    public ResponseEntity<TaskDto> create(@Valid @RequestBody TaskCreateDto dto) {
         TaskDto created = taskService.createTask(dto);
         return ResponseEntity
                 .created(URI.create("/api/tasks/" + created.id()))

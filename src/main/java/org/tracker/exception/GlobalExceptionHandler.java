@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -11,7 +13,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -42,7 +44,7 @@ public class GlobalExceptionHandler {
 
         // Если это именно ошибка парсинга даты(в TaskMapper) — можно уточнить
         if (ex.getCause() instanceof InvalidFormatException cause &&
-        cause.getTargetType() == LocalDateTime.class) {
+                cause.getTargetType() == LocalDateTime.class) {
             message = "Некорректный формат даты. Используй ISO-8601. Например: 2025-12-31T21:59";
         }
 
@@ -75,6 +77,21 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        FieldError::getDefaultMessage,
+                        (existing, replacement) -> existing
+                ));
+
+        return ResponseEntity.badRequest().body(errors);
+
+
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleOtherException(Exception ex) {
