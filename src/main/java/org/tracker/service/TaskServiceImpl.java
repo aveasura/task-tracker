@@ -2,6 +2,10 @@ package org.tracker.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.tracker.dto.task.TaskCreateDto;
+import org.tracker.dto.task.TaskDto;
+import org.tracker.exception.ResourceNotFoundException;
+import org.tracker.mapper.TaskMapper;
 import org.tracker.model.Task;
 import org.tracker.model.User;
 import org.tracker.model.enums.Priority;
@@ -10,9 +14,8 @@ import org.tracker.repository.TaskRepository;
 import org.tracker.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -27,58 +30,79 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public void assignTaskToUser(Long taskId, Long userId) {
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new NoSuchElementException("Task не найден"));
-        User user = userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("User не найден"));
+    public TaskDto assignTaskToUser(Long taskId, Long userId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new ResourceNotFoundException("Task с id=" + taskId + " не найден"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User с id=" + userId + " не найден"));
+
         task.setAssignee(user);
-    }
-
-    @Override
-    @Transactional
-    public void changeStatus(Long taskId, Status newStatus) {
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new NoSuchElementException("Task с таким id не найден"));
-        task.setStatus(newStatus);
-    }
-
-    @Override
-    public List<Task> getOverdueTasks() {
-        return taskRepository.findByDueDateBefore(LocalDateTime.now());
-    }
-
-    @Override
-    public List<Task> getUnassignedTasks() {
-        return taskRepository.findByAssigneeIsNull();
-    }
-
-    @Override
-    public List<Task> getTasksByPriority(Priority priority) {
-        return taskRepository.findByPriority(priority);
-    }
-
-    @Override
-    public List<Task> getTasksByStatus(Status status) {
-        return taskRepository.findByStatus(status);
-    }
-
-    @Override
-    public void save(Task task) {
         taskRepository.save(task);
-    }
-
-    @Override
-    public Optional<Task> findById(Long id) {
-        return taskRepository.findById(id);
-    }
-
-    @Override
-    public List<Task> findAll() {
-        return taskRepository.findAll();
+        return TaskMapper.toDto(task);
     }
 
     @Override
     @Transactional
-    public void deleteById(Long id) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Задачи с id=" + id + " не найдено"));
+    public TaskDto changeTaskStatus(Long taskId, String newStatus) {
+        Status parsed = Arrays.stream(Status.values())
+                .filter(s -> s.name().equalsIgnoreCase(newStatus))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Неверный статус: " + newStatus));
+
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task с id=" + taskId + " не найден"));
+
+        task.setStatus(parsed);
+        return TaskMapper.toDto(task);
+    }
+
+    @Override
+    public List<TaskDto> getTasks(Priority priority, Status status) {
+        List<Task> tasks;
+        if (priority != null && status != null) {
+            tasks = taskRepository.findByPriorityAndStatus(priority, status);
+        } else if (priority != null) {
+            tasks = taskRepository.findByPriority(priority);
+        } else if (status != null) {
+            tasks = taskRepository.findByStatus(status);
+        } else {
+            tasks = taskRepository.findAll();
+        }
+
+        return tasks.stream().map(TaskMapper::toDto).toList();
+    }
+
+    @Override
+    public List<TaskDto> getOverdueTasks() {
+        return taskRepository.findByDueDateBefore(LocalDateTime.now()).stream().map(TaskMapper::toDto).toList();
+    }
+
+    @Override
+    public List<TaskDto> getUnassignedTasks() {
+        return taskRepository.findByAssigneeIsNull().stream().map(TaskMapper::toDto).toList();
+    }
+
+    @Override
+    public TaskDto createTask(TaskCreateDto dto) {
+        Task task = TaskMapper.toEntity(dto);
+        Task saved = taskRepository.save(task);
+        return TaskMapper.toDto(saved);
+    }
+
+    @Override
+    public TaskDto getTaskById(Long id) {
+        return taskRepository.findById(id)
+                .map(TaskMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Task с id=" + id + " не найден"));
+    }
+
+    @Override
+    @Transactional
+    public void deleteTaskById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task с id=" + id + " не найден"));
+
         taskRepository.delete(task);
     }
 }

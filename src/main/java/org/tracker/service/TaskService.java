@@ -1,6 +1,7 @@
 package org.tracker.service;
 
-import org.tracker.model.Task;
+import org.tracker.dto.task.TaskCreateDto;
+import org.tracker.dto.task.TaskDto;
 import org.tracker.model.enums.Priority;
 import org.tracker.model.enums.Status;
 
@@ -9,16 +10,13 @@ import java.util.Optional;
 
 public interface TaskService {
 
-    void assignTaskToUser(Long taskId, Long userId);
-    void changeStatus(Long taskId, Status newStatus);
-    List<Task> getOverdueTasks();
-    List<Task> getUnassignedTasks();
-    List<Task> getTasksByPriority(Priority priority);
-    List<Task> getTasksByStatus(Status status);
+    List<TaskDto> getTasks(Priority priority, Status status);
+    TaskDto assignTaskToUser(Long taskId, Long userId);
+    TaskDto changeTaskStatus(Long taskId, String newStatus);
+    List<TaskDto> getOverdueTasks();
+    List<TaskDto> getUnassignedTasks();
 
-    // стандартные методы дергающие repo
-    void save(Task task);
-    Optional<Task> findById(Long id);
-    List<Task> findAll();
-    void deleteById(Long id);
+    TaskDto createTask(TaskCreateDto dto);
+    TaskDto getTaskById(Long id);
+    void deleteTaskById(Long id);
 }

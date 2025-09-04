@@ -1,17 +1,17 @@
 package org.tracker.service;
 
-import org.tracker.model.Task;
-import org.tracker.model.User;
+import org.tracker.dto.task.TaskDto;
+import org.tracker.dto.user.UserCreateDto;
+import org.tracker.dto.user.UserDto;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService {
 
-    List<Task> getTasksForUser(Long userId);
+    List<TaskDto> getTasksForUserByUserId(Long id);
 
-    void save(User user);
-    Optional<User> findById(Long id);
-    List<User> findAll();
-    void deleteById(Long id);
+    UserDto createUser(UserCreateDto dto);
+    UserDto getUserById(Long id);
+    List<UserDto> getAllUsers();
+    void deleteUserById(Long id);
 }
