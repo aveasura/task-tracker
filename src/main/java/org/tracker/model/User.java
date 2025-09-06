@@ -22,7 +22,7 @@ public class User {
 
     private String email;
 
-    public User(String email, String name) {
+    public User(String name, String email) {
         this.name = name;
         this.email = email;
     }
