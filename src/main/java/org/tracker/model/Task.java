@@ -34,7 +34,7 @@ public class Task {
     private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assignee_id")
+    @JoinColumn(name = "assignee_id", nullable = true)
     private User assignee;
 
     public Task(String title, String description, Priority priority, LocalDateTime dueDate, Status status) {

@@ -105,4 +105,29 @@ public class TaskServiceImpl implements TaskService {
 
         taskRepository.delete(task);
     }
+
+    @Override
+    @Transactional
+    public void unassignTask(Long id) {
+        unassignInternal(id);
+        // ничего не возвращаем, контроллер отдаст 204 ноу контент
+    }
+
+    @Override
+    @Transactional
+    public TaskDto unassignTaskAndReturn(Long id) {
+        Task task = unassignInternal(id);
+        return TaskMapper.toDto(task);
+    }
+
+    private Task unassignInternal(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found: id=" + id));
+
+        if (task.getAssignee() != null) {
+            task.setAssignee(null); // jpa dirty checking сохранит на коммите
+        }
+
+        return task;
+    }
 }

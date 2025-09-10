@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    // todo ConflictException для занятого email -> 409
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {

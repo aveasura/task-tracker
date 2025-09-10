@@ -3,6 +3,7 @@ package org.tracker.controller;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.tracker.dto.task.TaskDto;
 import org.tracker.dto.user.UserCreateDto;
 import org.tracker.dto.user.UserDto;
@@ -12,7 +13,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
@@ -24,14 +25,16 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserCreateDto dto) {
         UserDto created = userService.createUser(dto);
-        return ResponseEntity
-                .created(URI.create("/api/users/" + created.id()))
-                .body(created);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.id())
+                .toUri();
+        return ResponseEntity.created(location).body(created);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    public ResponseEntity<UserDto> getById(@PathVariable("id") Long userId) {
+        return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     @GetMapping
@@ -39,15 +42,17 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // получить таски для юзера по его id
     @GetMapping("/{id}/tasks")
-    public ResponseEntity<List<TaskDto>> getTasks(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getTasksForUserByUserId(id));
+    public ResponseEntity<List<TaskDto>> getTasks(@PathVariable("id") Long userId) {
+        return ResponseEntity.ok(userService.getTasksForUserByUserId(userId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        userService.deleteUserById(id); // кинет 404, если нет
+    public ResponseEntity<Void> deleteById(@PathVariable("id") Long userId) {
+        userService.deleteUserById(userId); // кинет 404, если нет
         return ResponseEntity.noContent().build(); // 204
     }
+
+    // todo PATCH /api/v1/users/{id} для частичного апдейта (name/email).
+    // todo к GET /users и GET /users/{id}/tasks прикрутить пагинацию
 }
