@@ -19,10 +19,15 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(UserRepository userRepository, TaskRepository taskRepository) {
+    public UserServiceImpl(UserRepository userRepository, TaskRepository taskRepository,
+                           TaskMapper taskMapper, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.taskMapper = taskMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -31,21 +36,21 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь с id=" + id + " не найден"));
 
         return taskRepository.findByAssigneeId(id).stream()
-                .map(TaskMapper::toDto)
+                .map(taskMapper::toDto)
                 .toList();
     }
 
     @Override
     public UserDto createUser(UserCreateDto dto) {
-        User user = UserMapper.toEntity(dto);
+        User user = userMapper.toEntity(dto);
         User saved = userRepository.save(user);
-        return UserMapper.toDto(saved);
+        return userMapper.toDto(saved);
     }
 
     @Override
     public UserDto getUserById(Long id) {
         return userRepository.findById(id)
-                .map(UserMapper::toDto)
+                .map(userMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь с id=" + id + " не найден"));
     }
 
@@ -53,7 +58,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(UserMapper::toDto)
+                .map(userMapper::toDto)
                 .toList();
     }
 
