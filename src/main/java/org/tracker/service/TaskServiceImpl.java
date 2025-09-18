@@ -6,6 +6,7 @@ import org.tracker.dto.task.TaskCreateDto;
 import org.tracker.dto.task.TaskDto;
 import org.tracker.exception.ResourceNotFoundException;
 import org.tracker.mapper.TaskMapper;
+import org.tracker.mapper.UserMapper;
 import org.tracker.model.Task;
 import org.tracker.model.User;
 import org.tracker.model.enums.Priority;
@@ -22,10 +23,13 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final TaskMapper taskMapper;
 
-    public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository,
+                           TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.taskMapper = taskMapper;
     }
 
     @Override
@@ -39,7 +43,7 @@ public class TaskServiceImpl implements TaskService {
 
         task.setAssignee(user);
         taskRepository.save(task);
-        return TaskMapper.toDto(task);
+        return taskMapper.toDto(task);
     }
 
     @Override
@@ -54,7 +58,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new IllegalArgumentException("Task с id=" + taskId + " не найден"));
 
         task.setStatus(parsed);
-        return TaskMapper.toDto(task);
+        return taskMapper.toDto(task);
     }
 
     @Override
@@ -70,30 +74,30 @@ public class TaskServiceImpl implements TaskService {
             tasks = taskRepository.findAll();
         }
 
-        return tasks.stream().map(TaskMapper::toDto).toList();
+        return tasks.stream().map(taskMapper::toDto).toList();
     }
 
     @Override
     public List<TaskDto> getOverdueTasks() {
-        return taskRepository.findByDueDateBefore(LocalDateTime.now()).stream().map(TaskMapper::toDto).toList();
+        return taskRepository.findByDueDateBefore(LocalDateTime.now()).stream().map(taskMapper::toDto).toList();
     }
 
     @Override
     public List<TaskDto> getUnassignedTasks() {
-        return taskRepository.findByAssigneeIsNull().stream().map(TaskMapper::toDto).toList();
+        return taskRepository.findByAssigneeIsNull().stream().map(taskMapper::toDto).toList();
     }
 
     @Override
     public TaskDto createTask(TaskCreateDto dto) {
-        Task task = TaskMapper.toEntity(dto);
+        Task task = taskMapper.toEntity(dto);
         Task saved = taskRepository.save(task);
-        return TaskMapper.toDto(saved);
+        return taskMapper.toDto(saved);
     }
 
     @Override
     public TaskDto getTaskById(Long id) {
         return taskRepository.findById(id)
-                .map(TaskMapper::toDto)
+                .map(taskMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Task с id=" + id + " не найден"));
     }
 
@@ -117,7 +121,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public TaskDto unassignTaskAndReturn(Long id) {
         Task task = unassignInternal(id);
-        return TaskMapper.toDto(task);
+        return taskMapper.toDto(task);
     }
 
     private Task unassignInternal(Long id) {

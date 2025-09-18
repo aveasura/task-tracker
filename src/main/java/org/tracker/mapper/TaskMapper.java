@@ -1,5 +1,6 @@
 package org.tracker.mapper;
 
+import org.springframework.stereotype.Component;
 import org.tracker.dto.task.TaskCreateDto;
 import org.tracker.dto.task.TaskDto;
 import org.tracker.model.Task;
@@ -8,10 +9,11 @@ import org.tracker.model.enums.Status;
 
 import java.util.Arrays;
 
+@Component
 public class TaskMapper {
 
     // ответ пользователю в виде dto
-    public static TaskDto toDto(Task task) {
+    public TaskDto toDto(Task task) {
         if (task == null) return null;
         return new TaskDto(task.getId(),
                 task.getTitle(),
@@ -23,7 +25,7 @@ public class TaskMapper {
     }
 
     // запрос от пользователя на создание таски -> dto в entity
-    public static Task toEntity(TaskCreateDto dto) {
+    public Task toEntity(TaskCreateDto dto) {
         if (dto == null) return null;
         Task task = new Task();
         task.setTitle(dto.title());
